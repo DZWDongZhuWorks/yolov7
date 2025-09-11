@@ -1,0 +1,48 @@
+conda activate yolov7
+E:
+cd D:\yolov7\
+
+#exp1 基本
+python train.py --weights yolov7-tiny.pt --device 0 --batch-size 4 --epochs 200 --data data/mydata.yaml --name yolov7-tiny-custom --hyp data/hyp.scratch.p5.yaml --img-size 640 --adam
+
+# exp2 基本但邊緣拓展
+python train.py `
+  --weights yolov7-tiny.pt `
+  --device 0 `
+  --batch-size 4 `
+  --epochs 200 `
+  --data data/mydata_exp2.yaml `
+  --name yolov7-tiny-custom `
+  --hyp data/hyp.scratch.p5.yaml `
+  --img-size 640 `
+  --adam
+
+# exp3 基本+影像擴增
+python train.py `
+  --weights yolov7-tiny.pt `
+  --device 0 `
+  --batch-size 4 `
+  --epochs 200 `
+  --data data/mydata_exp3.yaml `
+  --name yolov7-tiny-exp3 `
+  --hyp data/hyp.scratch.p5.yaml `
+  --img-size 640 `
+  --adam
+
+# demo
+python detect.py  `
+--weights runs/train/yolov7-tiny-exp3/weights/best.pt  `
+--img 640 --conf 0.25  `
+--source D:\wan-hai\wan-hai-radar-label\RADAR-research\temp `
+--name yolov7-tiny-exp3_RADAR-research
+
+
+# ONNX
+python export.py `
+  --weights runs/train/yolov7-tiny-exp3/weights/best.pt `
+  --img-size 640 640 `
+  --batch-size 1 `
+  --device 0 `
+  --dynamic `
+  --simplify
+
