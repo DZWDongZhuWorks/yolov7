@@ -243,7 +243,7 @@
         D:\yolov7\data\ARPA_exp3.yaml
     # train
         conda activate yolov7
-        E:
+
         cd D:\yolov7\
 
         python train.py `
@@ -252,7 +252,7 @@
         --batch-size 4 `
         --epochs 200 `
         --data data/ARPA_exp3.yaml `
-        --name ARPA_yolov7_exp `
+        --name ARPA_yolov7_exp3 `
         --hyp data/hyp.scratch.p5_2.yaml `
         --img-size 640 `
         --adam
