@@ -1,0 +1,21 @@
+# COCO 2017 dataset http://cocodataset.org
+
+# download command/URL (optional)
+download: bash ./scripts/get_coco.sh
+
+# train and val data as 1) directory: path/images/, 2) file: path/images.txt, or 3) list: [path1/images/, path2/images/]
+train: /home/ubuntu/Desktop/Rontgen/dataset/lilin_dataset/train.txt 
+val:   /home/ubuntu/Desktop/Rontgen/dataset/lilin_dataset/val.txt 
+test:  /home/ubuntu/Desktop/Rontgen/dataset/lilin_dataset/test.txt 
+
+# number of classes
+nc: 5
+
+# class names
+names: [ 
+  'wheelchair_p',
+  'crutch_p',
+  'walker_frame_p',
+  'baby_carriage',
+  'person'
+]

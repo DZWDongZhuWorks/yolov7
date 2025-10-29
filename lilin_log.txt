@@ -1,0 +1,54 @@
+# 20251023 exp19 RULE-9 @Ada-6000 yolov7-tiny
+  基於 exp18 改用 yolov7-tiny 進行訓練
+
+    1. 標註路徑產出
+        cd /home/ubuntu/Desktop/Rontgen/dataset/lilin_dataset/
+        python /home/ubuntu/Desktop/Rontgen/dataset_utils/myTool/generate_train_val_txt.py \
+        /home/ubuntu/Desktop/Rontgen/dataset/lilin_dataset/20250415-PersonVersion/20250407-danger_zone-R[346] \
+        /home/ubuntu/Desktop/Rontgen/dataset/lilin_dataset/20250415-PersonVersion/20250407-R[6] \
+        /home/ubuntu/Desktop/Rontgen/dataset/lilin_dataset/20250415-PersonVersion/20250409-danger_zone-neg-R[3467] \
+        /home/ubuntu/Desktop/Rontgen/dataset/lilin_dataset/20250415-PersonVersion/20250409-neg-R[3467] \
+        /home/ubuntu/Desktop/Rontgen/dataset/lilin_dataset/20250415-PersonVersion/Label5-LRT_cam2_R[6] \
+        /home/ubuntu/Desktop/Rontgen/dataset/lilin_dataset/20250516-PersonVersion/negative[6A] \
+        /home/ubuntu/Desktop/Rontgen/dataset/lilin_dataset/20250516-PersonVersion/positive[6A] \
+        /home/ubuntu/Desktop/Rontgen/dataset/lilin_dataset/20250527/Ankeng[8] \
+        /home/ubuntu/Desktop/Rontgen/dataset/lilin_dataset/20250527/Danhai[8] \
+        /home/ubuntu/Desktop/Rontgen/dataset/lilin_dataset/20250616 \
+        /home/ubuntu/Desktop/Rontgen/dataset/lilin_dataset/20250807/20250730-d[9] \
+        /home/ubuntu/Desktop/Rontgen/dataset/lilin_dataset/20250807/20250730-d-neg[9] \
+        /home/ubuntu/Desktop/Rontgen/dataset/lilin_dataset/20250807/20250804_open_dataset[9] \
+        /home/ubuntu/Desktop/Rontgen/dataset/lilin_dataset/20251014-filtered \
+        --train_ratio 0.8 --test_ratio 0.1 --output_dir /home/ubuntu/Desktop/Rontgen/dataset/lilin_dataset
+
+    4. 訓練
+
+        cd ~/Desktop/Rontgen/yolov7
+
+        nohup python train.py \
+        --weights yolov7-tiny.pt \
+        --device 0,1 \
+        --batch-size 168 \
+        --epochs 600 \
+        --data data/lilin_exp1.yaml \
+        --project lilin \
+        --name exp19 \
+        --hyp data/hyp.scratch.p5.yaml \
+        --img-size 640 \
+        --adam \
+        --nosave \
+        &> logs/exp19.txt &
+
+    5. ONNX
+        conda activate yolov12
+        python export.py \
+        --weights /home/ubuntu/Desktop/Rontgen/yolov7/lilin/exp19/weights/best.pt \
+        --img-size 640 640 \
+        --batch-size 1 \
+        --device 0 \
+        --dynamic \
+        --simplify \
+        --end2end \
+        --grid \
+        --max-wh 640 \
+        --topk-all 100 --iou-thres 0.65 --conf-thres 0.3
+
