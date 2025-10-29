@@ -422,7 +422,9 @@ python /home/rtx5090/Documents/Rontgen/dataset_utils/myTool/yolo_stats.py \
     --hyp data/hyp.scratch.p5_2.yaml  \
     --img-size 640 --adam  \
     --exist-ok &> logs\train_exp3.b4.r.txt & \
+    
 ### ONNX
+
     python export.py \
     --weights runs/train/ARPA_yolov7_exp3-b4r/weights/best.pt \
     --img-size 640 640 \
@@ -434,3 +436,8 @@ python /home/rtx5090/Documents/Rontgen/dataset_utils/myTool/yolo_stats.py \
     --grid \
     --max-wh 640 \
     --topk-all 100 --iou-thres 0.65 --conf-thres 0.3
+
+## ARPA-ds-2.1
+
+    執行 [ARPA-ds-2.1](ARPA-ds-2_log.txt)
+    
