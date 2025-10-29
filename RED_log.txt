@@ -1,0 +1,255 @@
+
+
+## RED EXP 1
+    使用 label-RED-RULE-1 資料集
+        整理資料將 exp2資料集分離為 兩個資料夾
+        - label-RED-RULE-1
+        - label-ARPA-RULE-2A
+
+    # generate train val test txt
+        C:/Users/Rontgen-W11-NB/.conda/envs/augment-venv/python.exe `
+        D:\dataset_utils\myTool\generate_train_val_test_txt.py `
+        D:\wan-hai\wan-hai-radar-label\RADAR-research\data1-label-images `
+        --ratio 8:1:1 `
+        --no-reorganize
+
+    # train
+        conda activate yolov7
+
+        cd D:\yolov7\
+
+        python train.py `
+        --weights yolov7.pt `
+        --device 0 `
+        --batch-size 4 `
+        --epochs 200 `
+        --data data/RED_exp1.yaml `
+        --name RED_yolov7_exp1 `
+        --hyp data/hyp.scratch.p5.yaml `
+        --img-size 640 `
+        --adam
+
+    # detect
+        python detect.py  `
+        --weights RED\RED_yolov7_exp1\weights\best.pt  `
+        --img 640 --conf 0.3  `
+        --name RED_yolov7_exp1 `
+        --source D:\wan-hai\wan-hai-radar-label\RADAR-research\data1-ORG_images
+
+## RED EXP 2
+    使用 label-RED-RULE-1 資料集
+        修改 hyp 參數 ARPA_hyp.yaml，重製擴增資料
+
+    # data augmentation  
+        cd D:\wan-hai\wan-hai-radar-label\RADAR-research\data1-label-images
+
+        C:/Users/Rontgen-W11-NB/.conda/envs/augment-venv/python.exe `
+        d:/dataset_utils/data_augmentation.py `
+        d:\yolov7\data\ARPA_hyp.yaml `
+        D:\wan-hai\wan-hai-radar-label\RADAR-research\data1-label-images --new-image 4 --no-background 
+
+    # generate train val test txt
+        C:/Users/Rontgen-W11-NB/.conda/envs/augment-venv/python.exe `
+        D:\dataset_utils\myTool\generate_train_val_test_txt.py `
+        D:\wan-hai\wan-hai-radar-label\RADAR-research\data1-label-images `
+        --ratio 8:1:1 `
+        --no-reorganize
+
+    # train
+        conda activate yolov7
+
+        cd D:\yolov7\
+
+        python train.py `
+        --weights yolov7.pt `
+        --device 0 `
+        --batch-size 4 `
+        --epochs 200 `
+        --data data/RED_exp1.yaml `
+        --name RED_yolov7_exp2 `
+        --hyp data/hyp.scratch.p5.yaml `
+        --img-size 640 `
+        --adam
+
+## RED EXP 3
+    - 使用 label-RED-RULE-1 資料集，增加訓練標註並重製為 ARPA-dataset-2
+    - 修改 hyp 參數 ARPA_hyp2.yaml，重製擴增資料
+    - 修改 hyp 參數 hyp.scratch.p5_2.yaml
+
+
+# RED RULE
+    ## RULE-1
+        - 標註一類
+        - RED
+    ## RULE-2
+        同 RULE-1，但移除所有空白標註資料
+
+
+
+## RED EXP 4
+  基於 ARPA-ds-2 資料集，使用 RED-RULE-1 標註規則
+  使用`image-arpa-rule-2`作為影像來源
+  > 結果： mAP 發散
+    # make RED-RULE-1 label
+        conda activate rontgen
+        cd ~/Documents/Rontgen/yolov7
+
+        python \
+        ~/Documents/Rontgen/dataset_utils/myTool/yolo_label_editor.py \
+        -f ~/Documents/Rontgen/dataset/ARPA-ds-2/red-rule-1 \
+        -c 0
+        -c 1
+        -c 2
+        -c 3
+        -c 4
+        -c 5 -t 0
+
+    # move labels
+        cp -afv ~/Documents/Rontgen/dataset/ARPA-ds-2/red-rule-1/. ~/Documents/Rontgen/dataset/ARPA-ds-2/image-arpa-rule-2/
+
+    # generate train val test txt @ docker
+        conda activate rontgen
+
+        python \
+        /home/rtx5090/Documents/Rontgen/dataset_utils/myTool/generate_train_val_test_txt.py \
+        /home/rtx5090/Documents/Rontgen/dataset/ARPA-ds-2/image-arpa-rule-2 \
+        --ratio 8:1:1 \
+        --no-reorganize
+
+    # edit data yaml
+        /home/rtx5090/Documents/Rontgen/yolov7/data/ARPA_exp4.yaml
+
+    # train
+        **先刪除位於影像標註資料夾內的 .cache 檔案，troch 2.6 導致 cache 導入失效**
+        rm -f ~/Documents/Rontgen/dataset/ARPA-ds-2/*.cache
+        conda activate rontgen
+        cd ~/Documents/Rontgen/yolov7
+
+        nohup python train.py --weights ./yolov7.pt  \
+        --device 0 --batch-size 4  \
+        --epochs 600  \
+        --data data/ARPA_exp4.yaml  \
+        --name RED_yolov7_exp4_b4ds22  \
+        --hyp data/hyp.scratch.p5_2.yaml  \
+        --img-size 640 --adam  \
+        --exist-ok &> logs/train_RED_e4.b4.ds22.txt & \
+    
+    # log
+        tail -F logs/train_RED_e4.b4.ds22.txt
+
+## RED EXP 5
+  基於 ARPA-ds-2 資料集，使用 RED-RULE-1 標註規則
+  轉換`image-arpa-rule-2`資料集為`image-red-rule-2`(ds2r2)，移除所有空白標註資料
+    # cp image-arpa-rule-2 to image-red-rule-2
+        cd /home/rtx5090/Documents/Rontgen/dataset/ARPA-ds-2
+        cp -afv image-arpa-rule-2/. image-red-rule-2/
+
+    # remove empty label and image
+        conda activate rontgen
+
+        python '/home/rtx5090/Documents/Rontgen/dataset_utils/myTool/clean_empty_labels.py' /home/rtx5090/Documents/Rontgen/dataset/ARPA-ds-2/image-red-rule-2 --yes
+
+    # generate train val test txt @ docker
+
+        python \
+        /home/rtx5090/Documents/Rontgen/dataset_utils/myTool/generate_train_val_test_txt.py \
+        /home/rtx5090/Documents/Rontgen/dataset/ARPA-ds-2/image-red-rule-2 \
+        --ratio 8:1:1 \
+        --no-reorganize
+
+    # edit data yaml
+        /home/rtx5090/Documents/Rontgen/yolov7/data/RED_exp5.yaml
+
+    # train
+        **先刪除位於影像標註資料夾內的 .cache 檔案，troch 2.6 導致 cache 導入失效**
+        rm -f ~/Documents/Rontgen/dataset/ARPA-ds-2/*.cache
+        conda activate rontgen
+        cd ~/Documents/Rontgen/yolov7
+
+        nohup python train.py --weights ./yolov7.pt  \
+        --device 0 --batch-size 4  \
+        --epochs 600  \
+        --data data/RED_exp5.yaml  \
+        --name RED_yolov7_exp5_b4ds2r2  \
+        --hyp data/hyp.scratch.p5_2.yaml  \
+        --img-size 640 --adam  \
+        --exist-ok &> logs/train_RED_e5.txt & \
+    
+    # log
+        tail -F logs/train_RED_e5.txt
+        
+    # ONNX
+        python export.py \
+        --weights runs/train/RED_yolov7_exp5_b4ds2r2/weights/best.pt \
+        --img-size 640 640 \
+        --batch-size 1 \
+        --device 0 \
+        --dynamic \
+        --simplify \
+        --end2end \
+        --grid \
+        --max-wh 640 \
+        --topk-all 100 --iou-thres 0.65 --conf-thres 0.3
+
+## RED EXP 6 
+    追加標註 `image-red-rule-2`(ds2r2)
+    增加 `Other-Red` 類別
+
+    # label format converter @ Anaconda PowerShell
+        C:/Users/Rontgen-W11-NB/.conda/envs/augment-venv/python.exe `
+        d:/dataset_utils/label_format_converter.py xml txt `
+        D:\wan-hai\wan-hai-radar-label\ARPA-ds-2\image-red-rule-2 `
+        d:\labelImg-windows_v1.8.1\data\predefined_classes.txt `
+
+    # data augmentation  
+        cd D:\wan-hai\wan-hai-radar-label\ARPA-ds-2\image-red-rule-2
+
+        C:/Users/Rontgen-W11-NB/.conda/envs/augment-venv/python.exe `
+        d:/dataset_utils/data_augmentation.py `
+        d:\yolov7\data\ARPA_hyp2.yaml `
+        D:\wan-hai\wan-hai-radar-label\ARPA-ds-2\image-red-rule-2 --new-image 3 --no-background 
+
+    # make RED-RULE-2 label
+        C:/Users/Rontgen-W11-NB/.conda/envs/augment-venv/python.exe `
+        d:/dataset_utils/myTool/yolo_label_editor.py `
+        -f D:\wan-hai\wan-hai-radar-label\ARPA-ds-2\red-rule-2 `
+        -c 0
+        -c 1
+        -c 2 
+        -c 3
+        -c 4 
+        -c 5 -t 0
+        -c 6 -t 1
+
+
+    # train
+    **先刪除位於影像標註資料夾內的 .cache 檔案，troch 2.6 導致 cache 導入失效**
+    rm -f ~/Documents/Rontgen/dataset/ARPA-ds-2/*.cache
+    conda activate rontgen
+    cd ~/Documents/Rontgen/yolov7
+
+    nohup python train.py --weights ./yolov7.pt  \
+    --device 0 --batch-size 4  \
+    --epochs 600  \
+    --data data/RED_exp6.yaml  \
+    --name RED_yolov7_exp6_b4ds2r2  \
+    --hyp data/hyp.scratch.p5_2.yaml  \
+    --img-size 640 --adam  \
+    --nosave \
+    --exist-ok &> logs/train_RED_e6.txt & \
+
+    # log
+        tail -F logs/train_RED_e6.txt
+
+    # ONNX
+        python export.py \
+        --weights runs/train/RED_yolov7_exp6_b4ds2r2/weights/best.pt \
+        --img-size 640 640 \
+        --batch-size 1 \
+        --device 0 \
+        --dynamic \
+        --simplify \
+        --end2end \
+        --grid \
+        --max-wh 640 \
+        --topk-all 100 --iou-thres 0.65 --conf-thres 0.3
