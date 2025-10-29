@@ -37,7 +37,7 @@ def create(name, pretrained, channels, classes, autoshape):
         if pretrained:
             fname = f'{name}.pt'  # checkpoint filename
             attempt_download(fname)  # download if not found locally
-            ckpt = torch.load(fname, map_location=torch.device('cpu'))  # load
+            ckpt = torch.load(fname, map_location=torch.device('cpu'), weights_only=False)  # load
             msd = model.state_dict()  # model state_dict
             csd = ckpt['model'].float().state_dict()  # checkpoint state_dict as FP32
             csd = {k: v for k, v in csd.items() if msd[k].shape == v.shape}  # filter
