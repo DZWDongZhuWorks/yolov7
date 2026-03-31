@@ -52,3 +52,237 @@
         --max-wh 640 \
         --topk-all 100 --iou-thres 0.65 --conf-thres 0.3
 
+# 20251111 exp20_v7 RULE-A @Ada-6000 yolov7-tiny
+
+    1. 標註路徑產出
+        python /home/ubuntu/Desktop/Rontgen/dataset_utils/myTool/generate_train_val_txt.py \
+        /home/ubuntu/Desktop/Rontgen/dataset/lilin_dataset/20251106 \
+        --train_ratio 0.8 --test_ratio 0.1 --output_dir /home/ubuntu/Desktop/Rontgen/yolov7/lilin/exp20_v7
+
+    2. 訓練
+        conda activate yolov12
+        cd ~/Desktop/Rontgen/yolov7
+
+        nohup python train.py \
+        --weights yolov7-tiny.pt \
+        --device 0,1 \
+        --batch-size 168 \
+        --epochs 600 \
+        --data data/lilin_exp20_v7.yaml \
+        --project lilin \
+        --name exp20_v7 \
+        --hyp data/hyp.scratch.p5.yaml \
+        --img-size 640 \
+        --adam \
+        --nosave \
+        &> logs/exp20_v7.txt &
+
+# 20251118 exp19-2 RULE-9 @Ada-6000 yolov7-tiny
+  基於 exp19 並下修 epoch 到 150
+  並且每 50 epoch 儲存一次權重檔
+
+    1. 標註路徑產出
+        cd /home/ubuntu/Desktop/Rontgen/dataset/lilin_dataset/
+        python /home/ubuntu/Desktop/Rontgen/dataset_utils/myTool/generate_train_val_txt.py \
+        /home/ubuntu/Desktop/Rontgen/dataset/lilin_dataset/20250415-PersonVersion/20250407-danger_zone-R[346] \
+        /home/ubuntu/Desktop/Rontgen/dataset/lilin_dataset/20250415-PersonVersion/20250407-R[6] \
+        /home/ubuntu/Desktop/Rontgen/dataset/lilin_dataset/20250415-PersonVersion/20250409-danger_zone-neg-R[3467] \
+        /home/ubuntu/Desktop/Rontgen/dataset/lilin_dataset/20250415-PersonVersion/20250409-neg-R[3467] \
+        /home/ubuntu/Desktop/Rontgen/dataset/lilin_dataset/20250415-PersonVersion/Label5-LRT_cam2_R[6] \
+        /home/ubuntu/Desktop/Rontgen/dataset/lilin_dataset/20250516-PersonVersion/negative[6A] \
+        /home/ubuntu/Desktop/Rontgen/dataset/lilin_dataset/20250516-PersonVersion/positive[6A] \
+        /home/ubuntu/Desktop/Rontgen/dataset/lilin_dataset/20250527/Ankeng[8] \
+        /home/ubuntu/Desktop/Rontgen/dataset/lilin_dataset/20250527/Danhai[8] \
+        /home/ubuntu/Desktop/Rontgen/dataset/lilin_dataset/20250616 \
+        /home/ubuntu/Desktop/Rontgen/dataset/lilin_dataset/20250807/20250730-d[9] \
+        /home/ubuntu/Desktop/Rontgen/dataset/lilin_dataset/20250807/20250730-d-neg[9] \
+        /home/ubuntu/Desktop/Rontgen/dataset/lilin_dataset/20250807/20250804_open_dataset[9] \
+        /home/ubuntu/Desktop/Rontgen/dataset/lilin_dataset/20251014-filtered \
+        --train_ratio 0.8 --test_ratio 0.1 --output_dir /home/ubuntu/Desktop/Rontgen/dataset/lilin_dataset
+
+
+    2. 修改 yaml
+        data/lilin_exp19-2.yaml
+        
+    4. 訓練
+
+        cd ~/Desktop/Rontgen/yolov7
+
+        nohup python train.py \
+        --weights yolov7-tiny.pt \
+        --device 0,1 \
+        --batch-size 168 \
+        --epochs 150 \
+        --data data/lilin_exp19-2.yaml \
+        --project lilin \
+        --name exp19-2 \
+        --hyp data/hyp.scratch.p5.yaml \
+        --img-size 640 \
+        --save_period 50 \
+        --adam \
+        &> logs/exp19-2.txt &
+
+# 20251118 exp19-3 RULE-9 @Ada-6000 yolov7-tiny
+  基於 exp19-2 下修 epoch 到 150
+  提升 image size 到 960
+  並且每 50 epoch 儲存一次權重檔
+
+
+    4. 訓練
+
+        cd ~/Desktop/Rontgen/yolov7
+
+        nohup python train.py \
+        --weights yolov7-tiny.pt \
+        --device 0,1 \
+        --batch-size 168 \
+        --epochs 150 \
+        --data data/lilin_exp19-2.yaml \
+        --project lilin \
+        --name exp19-3 \
+        --hyp data/hyp.scratch.p5.yaml \
+        --img-size 960 \
+        --save_period 50 \
+        --adam \
+        &> logs/exp19-3.txt &
+
+# 20251125 針對 OPWD_lilin_CCTV 資料集進行整理
+
+    ``` raw class names:
+        0	crutches
+        1	stroller
+        2	wheelchair
+        3	walking frame
+        4	walker
+        5	crane
+        6	umbrella
+        7	bag
+        8	handbag
+        9	crossbody bag
+        10	should bag
+        11	backpack
+        12	briefcase
+        13	suitcase
+        14	motorcycle
+        15	scooter
+        16	bicycle
+    ```
+
+    1. 整理 raw Label5
+        /home/ubuntu/miniconda3/envs/yolov12/bin/python /home/ubuntu/Desktop/Rontgen/dataset_utils/myTool/yolo_label_editor.py \
+        -f /home/ubuntu/Desktop/jordan/LILIN/OPWD_lilin_CCTV \
+        -c 16 15 14 13 12 11 10 9 8 7 6 \
+
+        /home/ubuntu/miniconda3/envs/yolov12/bin/python /home/ubuntu/Desktop/Rontgen/dataset_utils/myTool/yolo_label_editor.py \
+        -f /home/ubuntu/Desktop/jordan/LILIN/OPWD_lilin_CCTV \
+        -c 5 -t 0
+
+        /home/ubuntu/miniconda3/envs/yolov12/bin/python /home/ubuntu/Desktop/Rontgen/dataset_utils/myTool/yolo_label_editor.py \
+        -f /home/ubuntu/Desktop/jordan/LILIN/OPWD_lilin_CCTV \
+        -c 4 -t 3
+
+    2. 將順序改為與既有資料相同
+
+        ``` OPWD 
+            0	crutch_p
+            1	baby_carriage
+            2	wheelchair_p
+            3	walker_frame_p
+        ```
+        ``` LILIN
+            0	wheelchair_p
+            1	crutch_p
+            2	walker_frame_p
+            3	baby_carriage
+            4	person
+            5	other_crutch_p
+        ```
+        /home/ubuntu/miniconda3/envs/yolov12/bin/python /home/ubuntu/Desktop/Rontgen/dataset_utils/myTool/yolo_label_editor.py \
+        -f /home/ubuntu/Desktop/jordan/LILIN/OPWD_lilin_CCTV \
+        -c 0 -t 4
+        -c 1 -t 5
+        -c 2 -t 6
+        -c 3 -t 7
+        -c 4 -t 1
+        -c 5 -t 3
+        -c 6 -t 0
+        -c 7 -t 2
+
+    3. 使用模型再次補上 preson 類別
+
+    4. 挑選前四類 各 500 張圖
+        `/bin/python /home/ubuntu/Desktop/Rontgen/dataset_utils/myTool/yolo_select_by_class.py -r /home/ubuntu/Desktop/jordan/LILIN/OPWD_lilin_CCTV/ -q 0=500 1=500 2=500 3=500 --out '/home/ubuntu/Desktop/Rontgen/lilin/20251126_path.txt'`
+
+
+# 20251201 exp21-v7 RULE-9 
+  基於 exp18 所使用的資料集，增加 20251126，並改用yolov7-tiny
+  下修 epoch 到 150
+  提升 image size 到 960
+  並且每 50 epoch 儲存一次權重檔
+
+    1. 標註路徑產出
+        cd /home/ubuntu/Desktop/Rontgen/dataset/lilin_dataset/rule-9
+        python /home/ubuntu/Desktop/Rontgen/dataset_utils/myTool/generate_train_val_txt.py \
+        /home/ubuntu/Desktop/Rontgen/dataset/lilin_dataset/20250415-PersonVersion/20250407-danger_zone-R[346] \
+        /home/ubuntu/Desktop/Rontgen/dataset/lilin_dataset/20250415-PersonVersion/20250407-R[6] \
+        /home/ubuntu/Desktop/Rontgen/dataset/lilin_dataset/20250415-PersonVersion/20250409-danger_zone-neg-R[3467] \
+        /home/ubuntu/Desktop/Rontgen/dataset/lilin_dataset/20250415-PersonVersion/20250409-neg-R[3467] \
+        /home/ubuntu/Desktop/Rontgen/dataset/lilin_dataset/20250415-PersonVersion/Label5-LRT_cam2_R[6] \
+        /home/ubuntu/Desktop/Rontgen/dataset/lilin_dataset/20250516-PersonVersion/negative[6A] \
+        /home/ubuntu/Desktop/Rontgen/dataset/lilin_dataset/20250516-PersonVersion/positive[6A] \
+        /home/ubuntu/Desktop/Rontgen/dataset/lilin_dataset/20250527/Ankeng[8] \
+        /home/ubuntu/Desktop/Rontgen/dataset/lilin_dataset/20250527/Danhai[8] \
+        /home/ubuntu/Desktop/Rontgen/dataset/lilin_dataset/20250616 \
+        /home/ubuntu/Desktop/Rontgen/dataset/lilin_dataset/20250807/20250730-d[9] \
+        /home/ubuntu/Desktop/Rontgen/dataset/lilin_dataset/20250807/20250730-d-neg[9] \
+        /home/ubuntu/Desktop/Rontgen/dataset/lilin_dataset/20250807/20250804_open_dataset[9] \
+        /home/ubuntu/Desktop/Rontgen/dataset/lilin_dataset/20251014-filtered \
+        /home/ubuntu/Desktop/Rontgen/dataset/lilin_dataset/20251126/Ankeng[9] \
+        /home/ubuntu/Desktop/Rontgen/dataset/lilin_dataset/20251126/Danhai[9] \
+        --train_ratio 0.8 --test_ratio 0.1 --output_dir /home/ubuntu/Desktop/Rontgen/dataset/lilin_dataset/rule-9
+
+    2. 訓練
+        conda activate yolov12
+        cd ~/Desktop/Rontgen/yolov7
+
+        nohup python train.py \
+        --weights yolov7-tiny.pt \
+        --device 1 \
+        --batch-size 64 \
+        --epochs 150 \
+        --img-size 960 \
+        --save_period 50 \
+        --data data/lilin_exp19-2.yaml \
+        --project lilin \
+        --name exp21-v7 \
+        --hyp data/hyp.scratch.p5.yaml \
+        --adam \
+        &> logs/exp21-v7.txt &
+
+
+# 20251201 exp22-v7 RULE-A @Ada-6000 yolov7-tiny
+
+    1. 標註路徑產出
+        python /home/ubuntu/Desktop/Rontgen/dataset_utils/myTool/generate_train_val_txt.py \
+        /home/ubuntu/Desktop/Rontgen/dataset/lilin_dataset/20251106 \
+        /home/ubuntu/Desktop/Rontgen/dataset/lilin_dataset/20251126/Ankeng[A] \
+        /home/ubuntu/Desktop/Rontgen/dataset/lilin_dataset/20251126/Danhai[A] \
+        --train_ratio 0.8 --test_ratio 0.1 --output_dir /home/ubuntu/Desktop/Rontgen/dataset/lilin_dataset/rule-A
+
+    2. 訓練
+        conda activate yolov12
+        cd ~/Desktop/Rontgen/yolov7
+
+        nohup python train.py \
+        --weights yolov7-tiny.pt \
+        --device 0 \
+        --batch-size 64 \
+        --epochs 150 \
+        --img-size 960 \
+        --save_period 50 \
+        --data data/lilin_exp22_v7.yaml \
+        --project lilin \
+        --name exp22-v7 \
+        --hyp data/hyp.scratch.p5.yaml \
+        --adam \
+        &> logs/exp22-v7.txt &
